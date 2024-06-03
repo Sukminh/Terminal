@@ -1,0 +1,36 @@
+test_debug
+    - right click, hit properties
+    - paste the following:
+
+C:\qemu-1.5.0-win32-sdl\qemu-system-i386w.exe -hda "Z:\mp3_group_31\student-distrib\mp3.img" -m 256 -gdb tcp:127.0.0.1:1234 -S -name mp3
+
+test_nodebug
+    - right click, hit properties
+    - paste the following:
+C:\qemu-1.5.0-win32-sdl\qemu-system-i386w.exe -hda "Z:\mp3_group_31\student-distrib\mp3.img" -m 256 -gdb tcp:127.0.0.1:1234 -name mp3
+
+To Run: 
+(devel) cd <mp3 directory>/student-distrib
+(devel) make clean && make dep && sudo make
+(devel) gdb bootimg
+open test_debug
+(devel) tar rem 10.0.2.2:1234
+(devel) continue
+
+To Run in test_nodebug:
+(devel) cd <mp3 directory>/student-distrib
+(devel) make clean && make dep && sudo make
+open test_nodebug
+
+
+Running Tests:
+1. GDT Loading: comment out launch_tests() in kernel.C
+    a. Expected output: Boots OS, and you see registers
+2. RTC Interrupts: enable tests_interrupts in rtc.C
+    a. Expected output: Characters flash on screen quickly
+3. Keyboard Interrupts: try typing (should fail for exceptions and system call)
+    a. Expected output: lowercase letters and numbers
+4. Paging: ctrl+alt+2, and then info mem
+    a. ctrl+alt+1 to go back to OS
+5. Exception Handlers: uncomment appropriate function in tests.C
+    a. Expected output: bluescreen

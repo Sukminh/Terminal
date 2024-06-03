@@ -1,0 +1,92 @@
+1.  Exception occurring infinitely
+    30 minute fix
+    While testing divide_zero Exception, the Exception infinitely printed out on the QEMU.
+    Had to enter critical section and add while(1) to keep the program in interrupt
+
+2.  Incorrect numbers and lowercase appearing for keyboard interrupt
+    1 hour fix
+    While testing keyboard interrupt input, random character typed on display.
+    Because we used a 2D array to map ASCII values, had to iterate through just the first index of each row for this checkpoint (only lowercase and numbers)
+
+3.  Incorrect address output when testing paging using info mem
+    1 hour fix
+    Wrong page info showed up on info mem.
+    When creating paging for video memory, did not check if index is equal to VID_MEM (0xb8000)
+    Also had to right shift VID_MEM by 12 to get 0xb8
+
+4.  Incorrect read and write for terminal driver
+    1 hour fix
+    Did not go to the next line after pressing enter and outputting the same keyboard input on the following line
+    Added a line that goes to the next line in terminal_write function
+    
+5.  Not clearing the keyboard buffer
+    1 hour fix
+    Initially cleared the keyboard buffer by replacing it with empty space (' ') --> changed it so that it is null
+    Scancode table also did not correctly map ENTER key press so it did not clear the buffer
+
+6.  Cursor not updating to correct typing position
+    1 hour fix
+    Had to make a helper function that updates the position of the cursor when clearing the screen
+    --> set cursor position to top left of the screen
+
+7.  Random characters outputting when testing RTC frequency function
+    30 min fix
+    When printing out the test output, had unnecessary space between strings
+
+8.  printf() from lib.c changes the top of the stack
+    2 hour fix
+    When we were pushing the five reference values to the stack before IRET(transition to other program), 
+    we found out that top of the stack isn't the same as the last argument pushed.
+    We had this issue because our intended program didn't run. As soon as we found out from gdb, 
+    we erased the printf which was in between argument pushes and IRET and fixed the bug.
+
+9.  shallow copy by dentry
+    2 hour fix
+    When we are copying the corresponding dentry struct, we gave the argument to be copied not by reference so that
+    inside the function where copies the dentry, it makes local object of the dentry, thus not copying as we intended.
+    We fixed this by giving the argument of dentry as a reference instead, so that it could be deep copied.
+
+10. buffer not cleared correctly as strlen exclude '\0', aka. null
+    30 min fix
+    We had to clear buffer for getarg so that when we give argument for grep, it executes with correct search name
+    However, as we assumed strlen include '\0', as a result, buffer didn't cleared correctly.
+
+11. wrong number of bytes read from read_data function
+    1 hour fix
+    We forgot to return correct number of bytes to be read in case where we didn't reach end of the file,
+    for example, for fish, where reads the text files each byte, we returned the length of the file instead of 1.
+
+12. didn't initialize new page table in x86_desc.S
+    30 min fix
+    We forgot to initialize page table for the new vidmap function, so that when we did "make", it 
+    complained about undefined reference to the name that we wrote in the .h file.
+
+13. Calling system_halt multiple times until it exits out of all base shells
+    4 - 5 hours (with help from CA)
+    Failing to read from keyboard correctly, which returns 3, which calls system_halt.
+    We had global pid in the syscall.c(it was okay because it was single terminal system), 
+    however for this scheduling to work, we needed smarter pid so we changed pid to the youngest(latest ran) pid of the terminal.
+
+14. Only had one keyboard buffer
+    2 hours 
+    Unable to write to the screen using keyboard. Keyboard inputs would go to different terminals based on PIT. Did 
+    not calculate keyboard buffer size separately for each terminal. 
+    Created a 2-d array for keyboard buffer corresponding to each terminal.
+
+15. Created another putc function
+    2 hours
+    We needed to create two putc functions, one for the keyboard input to write to the display screen and one for 
+    terminal_write. Needed to differentiate between the program we are looking at and the ones running in the background.
+
+16. When multiple FISH are running, FISH got slower
+    2 hours
+    We implemented RTC Virtualization which allows three terminals to run three separate frequencies using size 3 buffer.
+    We used global variable which stores scheduled terminal index in rtc_write and rtc_read so it corresponds to scheduled
+    terminal we are working on.
+
+17. Block keyboard typing while program is running
+    3 hours
+    We had problems when running pingpong, fish, we could still write on to the screen, which looked clumsy.
+    Therefore, we made blocking flag that blocks keyboard typing. We set the flag as enabled at the beginning of the terminal_read,
+    but if enter is pressed, we disabled the flag so that until same program calls terminal_read again, the keyboard is blocked. 
+
